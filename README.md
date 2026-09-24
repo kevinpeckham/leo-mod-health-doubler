@@ -2,17 +2,29 @@
 
 Leo's third Minecraft Bedrock add-on, and his name for it.
 
-You start on **half a heart**. Every **1000 blocks** you mine, your health
-**doubles**. Die, and you're back to half a heart with nothing mined.
+You start on **half a heart**, and mining doubles your health. Die, and you're
+back to half a heart with nothing mined.
 
-| Blocks mined | Health |
-|---|---|
-| 0 | ½ heart |
-| 1,000 | 1 heart |
-| 2,000 | 2 hearts |
-| 3,000 | 4 hearts |
-| 5,000 | 16 hearts |
-| 10,000 | **512 hearts** — the most the game allows |
+Each doubling costs more than the last — 100 blocks, then 200, then 300, up to
+1000, which is as dear as it ever gets. Leo asked for that after playing: a flat
+thousand made the first double far too long a wait when one hit kills you.
+
+| Doubling | Costs | Total mined | Health |
+|---|---|---|---|
+| — | — | 0 | ½ heart |
+| 1st | 100 | 100 | 1 heart |
+| 2nd | 200 | 300 | 2 hearts |
+| 3rd | 300 | 600 | 4 hearts |
+| 4th | 400 | 1,000 | 8 hearts |
+| 5th | 500 | 1,500 | 16 hearts |
+| 6th | 600 | 2,100 | 32 hearts |
+| 7th | 700 | 2,800 | 64 hearts |
+| 8th | 800 | 3,600 | 128 hearts |
+| 9th | 900 | 4,500 | 256 hearts |
+| 10th | 1,000 | **5,500** | **512 hearts** — the most the game allows |
+
+The tenth doubling is both the first to cost a full thousand and the last the
+game can give, so the whole thing is done in 5,500 blocks.
 
 It runs on **its own server, in Survival** — health and respawning are the whole
 mod, and in Creative you can't die and a thousand blocks is no work at all.
@@ -51,7 +63,7 @@ thousand blocks.
 ## The technical limit Leo asked about
 
 There is one, and it's the game's rather than ours: **1024 health points, or 512
-hearts**, reached at 10,000 blocks mined.
+hearts**, reached at 5,500 blocks mined.
 
 Two facts set it. Nothing in the script API can change a player's *maximum*
 health — `effectiveMax` is read-only, Bedrock has no `/attribute` command, and

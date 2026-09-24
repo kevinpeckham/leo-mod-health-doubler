@@ -10,13 +10,30 @@ import {
 // mine doubles how much health you have. Die, and you're back to half a heart
 // and back to zero blocks.
 //
-//   blocks mined     0     1000   2000   3000   4000  ...  10000
-//   health          0.5     1      2      4      8    ...   512   hearts
+// Each doubling costs more than the last: the first is 100 blocks, then 200,
+// then 300, and so on up to 1000, which is as expensive as it ever gets. Leo
+// asked for that after playing — a flat thousand made the first double far too
+// long a wait when one hit kills you.
+//
+//   doubling   1    2    3    4    5    6    7    8    9   10
+//   costs    100  200  300  400  500  600  700  800  900 1000
+//   total    100  300  600 1000 1500 2100 2800 3600 4500 5500
+//   hearts     1    2    4    8   16   32   64  128  256  512
+//
+// The tenth doubling is the last one the game can give (see the limit below),
+// and it happens to be the first that costs the full thousand — so the whole
+// thing is done in 5,500 blocks.
 //
 // Health in Minecraft is counted in half-hearts, so "half a heart" is 1 point
 // and a normal player has 20. Everything below works in those points.
 
-const BLOCKS_PER_DOUBLING = 1000;
+const FIRST_DOUBLING_BLOCKS = 100;
+const EXTRA_BLOCKS_PER_DOUBLING = 100;
+const MOST_BLOCKS_PER_DOUBLING = 1000;
+
+// Purely a guard on the loop below, not a rule of the game — the health ceiling
+// stops things long before this.
+const SANE_DOUBLING_LIMIT = 64;
 
 // Where you start: one point, half a heart. This has to match the max health in
 // pack/entities/player.json, which is the only way to start a player below the
@@ -57,10 +74,35 @@ function setMined(player: Player, blocks: number) {
 const hearts = (points: number) =>
   Number.isInteger(points / 2) ? `${points / 2}` : `${(points / 2).toFixed(1)}`;
 
+/** What the nth doubling costs, counting from 1. */
+const costOfDoubling = (n: number) =>
+  Math.min(
+    MOST_BLOCKS_PER_DOUBLING,
+    FIRST_DOUBLING_BLOCKS + (n - 1) * EXTRA_BLOCKS_PER_DOUBLING,
+  );
+
+/**
+ * Works out where a player stands: how many doublings this many blocks has
+ * bought, and how many more blocks until the next one.
+ */
+function progressFor(blocks: number) {
+  let doublings = 0;
+  let spent = 0;
+
+  while (doublings < SANE_DOUBLING_LIMIT) {
+    const next = costOfDoubling(doublings + 1);
+    if (spent + next > blocks) {
+      return { doublings, blocksToNext: spent + next - blocks };
+    }
+    spent += next;
+    doublings++;
+  }
+  return { doublings, blocksToNext: 0 };
+}
+
 /** How much health this many mined blocks has earned, before any game limit. */
 function earnedHealth(blocks: number) {
-  const doublings = Math.floor(blocks / BLOCKS_PER_DOUBLING);
-  return START_HEALTH * 2 ** doublings;
+  return START_HEALTH * 2 ** progressFor(blocks).doublings;
 }
 
 /**
@@ -108,7 +150,7 @@ function showProgress(player: Player) {
     | undefined;
   const now = health ? Math.min(earnedHealth(blocks), health.effectiveMax) : 0;
   const next = earnedHealth(blocks) * 2;
-  const togo = BLOCKS_PER_DOUBLING - (blocks % BLOCKS_PER_DOUBLING);
+  const togo = progressFor(blocks).blocksToNext;
 
   // If the game won't give us any more, say so instead of promising a double
   // that will never arrive.
@@ -127,9 +169,7 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
   const after = before + 1;
   setMined(player, after);
 
-  const crossed =
-    Math.floor(after / BLOCKS_PER_DOUBLING) >
-    Math.floor(before / BLOCKS_PER_DOUBLING);
+  const crossed = progressFor(after).doublings > progressFor(before).doublings;
 
   if (!crossed) {
     // Only nag every so often, or the action bar never goes away.
