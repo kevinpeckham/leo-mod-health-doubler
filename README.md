@@ -26,6 +26,28 @@ mod, and in Creative you can't die and a thousand blocks is no work at all.
 
 Add it on the iPads as a new server entry — same address, port **19136**.
 
+Leo's other mods each have their own world too: [Mod 01](../leo-mod-01) on
+19132 and [More TNT](../leo-mod-more-tnt) on 19134. A behaviour pack applies to
+everyone in its world, and this one changes the player, so it needs to be
+somewhere on its own.
+
+## Testing it
+
+`/scriptevent health:check` prints everyone's blocks, health and maximum. A
+fresh player should read:
+
+```
+BlahNebula92412: 0 blocks, health 1/1 (earned 1)
+```
+
+`health 1/1` is the proof that the player override took: current health 1, and
+the **maximum** lowered from twenty to one. Without it you'd see `1/20` — half a
+heart of health inside ten hearts of empty container.
+
+Survival with half a heart means **anything kills you** — one zombie hit, a
+two-block fall, a cactus. Mining stone is the safest way to climb the first
+thousand blocks.
+
 ## The technical limit Leo asked about
 
 There is one, and it's the game's rather than ours: **1024 health points, or 512
