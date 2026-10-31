@@ -43,6 +43,11 @@ Leo's other mods each have their own world too: [Mod 01](../leo-mod-01) on
 everyone in its world, and this one changes the player, so it needs to be
 somewhere on its own.
 
+
+**Hit something strange?** [FINDINGS.md](../leo-mod-01/FINDINGS.md) collects the gotchas we've
+already solved across all of Leo's mods — connection failures, invisible
+mobs, recipes that silently do nothing, and the rest.
+
 ## Testing it
 
 `/scriptevent health:check` prints everyone's blocks, health and maximum. A
